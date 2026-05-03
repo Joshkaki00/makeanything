@@ -8,8 +8,8 @@ They are marked to run only when the model is available, or mock the model.
 For fast CI: mock the SentenceTransformer.
 For full integration: run with --integration flag (add to conftest if needed).
 """
-import pytest
 import numpy as np
+import pytest
 
 from src.rag.embedder import embed_texts
 

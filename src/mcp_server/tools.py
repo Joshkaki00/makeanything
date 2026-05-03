@@ -10,6 +10,8 @@ Rules (see src/mcp_server/AGENTS.md):
 - Return strings only — no dicts, no lists.
 """
 
+VALID_TRIGGERS = {"push", "pull_request", "workflow_dispatch"}
+
 
 def create_dockerfile(base_image: str, port: int, working_dir: str = "/app") -> str:
     """
@@ -26,7 +28,27 @@ def create_dockerfile(base_image: str, port: int, working_dir: str = "/app") -> 
     Raises:
         ValueError: If base_image is empty or port is out of range.
     """
-    raise NotImplementedError
+    # Validate inputs before any string construction
+    if not base_image or base_image.strip() == "":
+        raise ValueError("base_image must not be empty")
+
+    if port < 1 or port > 65535:
+        raise ValueError(f"port must be 1–65535, got {port}")
+
+    dockerfile = f"""FROM {base_image}
+
+WORKDIR {working_dir}
+
+EXPOSE {port}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \\
+    && rm -rf /var/lib/apt/lists/*
+
+COPY . .
+
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "{port}"]
+"""
+    return dockerfile
 
 
 def create_github_actions_workflow(trigger: str, python_version: str = "3.11") -> str:
@@ -44,4 +66,42 @@ def create_github_actions_workflow(trigger: str, python_version: str = "3.11") -
     Raises:
         ValueError: If trigger is empty or not a recognized event name.
     """
-    raise NotImplementedError
+    # Validate inputs before any string construction
+    if not trigger or trigger.strip() == "":
+        raise ValueError("trigger must not be empty")
+
+    if trigger not in VALID_TRIGGERS:
+        raise ValueError(f"trigger must be one of {VALID_TRIGGERS}, got '{trigger}'")
+
+    workflow = f"""name: CI
+
+on:
+  {trigger}:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python {python_version}
+        uses: actions/setup-python@v4
+        with:
+          python-version: {python_version}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest
+
+      - name: Run linter
+        run: ruff check .
+"""
+    return workflow

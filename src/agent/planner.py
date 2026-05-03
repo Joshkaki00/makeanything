@@ -38,4 +38,23 @@ def classify_task(query: str) -> TaskType:
     Raises:
         ValueError: If query is empty or whitespace-only.
     """
-    raise NotImplementedError
+    # Validate input
+    if not query or not query.strip():
+        raise ValueError("Query cannot be empty or whitespace-only")
+
+    # Normalize query to lowercase for matching
+    normalized = query.lower()
+
+    # Check for RAG information triggers (higher priority)
+    rag_triggers = {"how", "what", "explain", "tell", "guide"}
+    for trigger in rag_triggers:
+        if trigger in normalized:
+            return TaskType.RAG
+
+    # Check for MCP action triggers
+    for trigger in MCP_TRIGGERS:
+        if trigger in normalized:
+            return TaskType.MCP
+
+    # Fallback to RAG for ambiguous/single-word queries
+    return TaskType.RAG

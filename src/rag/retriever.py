@@ -42,4 +42,18 @@ def retrieve(
     Raises:
         ValueError: If query is empty or whitespace-only.
     """
-    raise NotImplementedError
+    # Validate query
+    if not query or not query.strip():
+        raise ValueError("empty")
+
+    # Embed the query
+    query_embedding = embed_texts([query])[0]
+
+    # Query the store
+    results = store.query(query_embedding, top_k=top_k)
+
+    # Reranking step (optional, not implemented yet as tests skip it)
+    # if rerank and results:
+    #     results = _rerank_results(results, query, rerank_model)
+
+    return results

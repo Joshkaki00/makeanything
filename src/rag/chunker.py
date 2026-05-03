@@ -9,6 +9,11 @@ See data/guides/ for the corpus this is designed to chunk.
 from dataclasses import dataclass, field
 from typing import List
 
+from langchain_text_splitters import (
+    MarkdownHeaderTextSplitter,
+    RecursiveCharacterTextSplitter,
+)
+
 
 @dataclass
 class Chunk:
@@ -33,4 +38,52 @@ def chunk_markdown(text: str, source: str, max_size: int = 500) -> List[Chunk]:
     Raises:
         TypeError: If text or source are not strings.
     """
-    raise NotImplementedError
+    if not isinstance(text, str) or not isinstance(source, str):
+        raise TypeError("text and source must be strings")
+
+    # Handle empty or whitespace-only input
+    if not text.strip():
+        return []
+
+    # First pass: split at ## headings
+    headers_to_split_on = [("##", "heading")]
+    header_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    header_splits = header_splitter.split_text(text)
+
+    # Second pass: for sections exceeding max_size, use recursive splitting
+    chunks = []
+    for doc in header_splits:
+        chunk_text = doc.page_content.strip()
+        chunk_heading = doc.metadata.get("heading", "")
+
+        if not chunk_text:
+            continue
+
+        # If the section is small enough, create a single chunk
+        if len(chunk_text) <= max_size:
+            chunks.append(
+                Chunk(
+                    text=chunk_text,
+                    source=source,
+                    heading=chunk_heading,
+                )
+            )
+        else:
+            # For oversized sections, use recursive character splitting
+            recursive_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=max_size,
+                chunk_overlap=50,
+                separators=["\n\n", "\n", " ", ""],
+            )
+            sub_chunks = recursive_splitter.split_text(chunk_text)
+            for sub_text in sub_chunks:
+                if sub_text.strip():
+                    chunks.append(
+                        Chunk(
+                            text=sub_text.strip(),
+                            source=source,
+                            heading=chunk_heading,
+                        )
+                    )
+
+    return chunks
