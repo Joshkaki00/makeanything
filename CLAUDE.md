@@ -8,6 +8,16 @@ Beginner DevOps Learning Tracker — RAG pipeline over curated DevOps guides (Do
 - MCP server (project log resource, file creation tools, external docs API)
 - Planning agent that routes tasks to RAG or MCP
 
+## Key Files
+- `spec.md` — quality gates and acceptance criteria
+- `proposal.md` — problem statement and success criteria
+- `poc-notes.md` — what worked, surprises, gotcha log
+- `src/rag/` — chunker, embedder, ChromaDB store, retriever
+- `src/mcp_server/` — FastMCP server, tools, resources
+- `src/agent/planner.py` — task classifier (RAG vs MCP)
+- `data/guides/` — DevOps guide corpus for RAG
+- `tests/` — failing tests written before implementation
+
 ## Workflow
 
 **Test first.** Write the failing test before the implementation. Commit the test before the code that makes it pass.

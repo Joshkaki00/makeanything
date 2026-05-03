@@ -1,0 +1,19 @@
+# RAG pipeline
+sentence-transformers
+chromadb
+langchain-text-splitters
+
+# MCP server
+mcp[cli]
+
+# Document loading
+beautifulsoup4
+pypdf
+
+# Dev / test
+pytest
+pytest-cov
+ruff
+
+# Evaluation (optional)
+# ragas

@@ -1,0 +1,36 @@
+[project]
+name = "devops-tracker"
+version = "0.1.0"
+description = "RAG-powered DevOps learning tracker with MCP tooling"
+requires-python = ">=3.11"
+dependencies = [
+    "sentence-transformers",
+    "chromadb",
+    "langchain-text-splitters",
+    "mcp[cli]",
+    "beautifulsoup4",
+    "pypdf",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
