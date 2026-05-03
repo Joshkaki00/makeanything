@@ -8,8 +8,16 @@ Usage:
     python demo.py          # Run interactive demo
     python demo.py "query"  # Run single query
 """
+import os
 import sys
-from src.agent.planner import run_agent
+
+# Suppress HuggingFace Hub unauthenticated-request warnings and tqdm progress
+# bars before any library imports so they don't pollute demo output.
+os.environ.setdefault("HF_HUB_VERBOSITY", "error")
+os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+from src.agent.planner import run_agent  # noqa: E402
 
 
 def demo_rag():

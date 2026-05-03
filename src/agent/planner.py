@@ -13,6 +13,7 @@ See architecture.md for the full planning agent design.
 import re
 import shutil
 import sys
+import tempfile
 from enum import Enum
 from pathlib import Path
 
@@ -34,6 +35,7 @@ class TaskType(str, Enum):
 MCP_TRIGGERS = frozenset({
     "generate", "create", "write", "make", "build",
     "produce", "output", "give me a", "show me a",
+    "setup", "set up", "configure",
 })
 
 
@@ -110,11 +112,19 @@ def _extract_dockerfile_params(query: str) -> tuple[str, int]:  # pylint: disabl
 
     normalized = query.lower()
 
-    # Extract base image (look for patterns like "python:3.11", "node:18", etc.)
-    # Match "word:digits" pattern
+    # Extract base image — try "python:3.13" format first, then "python 3.13" with space
     image_match = re.search(r"\b([a-z]+):(\d+(?:\.\d+)?(?:-\w+)?)\b", normalized)
     if image_match:
         base_image = f"{image_match.group(1)}:{image_match.group(2)}"
+    else:
+        lang_match = re.search(
+            r"\b(python|node|ruby|golang|java|nginx|ubuntu)\s+(\d+(?:\.\d+)?)\b",
+            normalized,
+        )
+        if lang_match:
+            lang = lang_match.group(1)
+            version = lang_match.group(2)
+            base_image = f"{lang}:{version}-slim" if lang == "python" else f"{lang}:{version}"
 
     # Extract port number (look for "port XXXX" or just a 4-5 digit number)
     port_match = re.search(r"port\s+(\d+)", normalized)
@@ -257,14 +267,11 @@ def _run_rag_pipeline(query: str) -> str:  # pylint: disable=redefined-outer-nam
     texts = [chunk.text for chunk in all_chunks]
     embeddings = embed_texts(texts)
 
-    # Create temporary vector store
-    temp_store_dir = ".chroma-planner"
+    # Use a unique temp dir each call to avoid ChromaDB's SharedSystemClient
+    # retaining a stale internal reference to a previously-deleted path
+    # (causes code-1032 "SQLITE_READONLY_DBMOVED" on the second RAG call).
+    temp_store_dir = tempfile.mkdtemp(prefix="chroma-planner-")
     try:
-        # Clean up any previous store
-        if Path(temp_store_dir).exists():
-            shutil.rmtree(temp_store_dir)
-
-        # Initialize and populate store
         store = VectorStore(collection_name="guides", persist_dir=temp_store_dir)
         store.add(all_chunks, embeddings)
 
@@ -282,9 +289,7 @@ def _run_rag_pipeline(query: str) -> str:  # pylint: disable=redefined-outer-nam
 
         return "".join(response_parts)
     finally:
-        # Clean up temporary store
-        if Path(temp_store_dir).exists():
-            shutil.rmtree(temp_store_dir)
+        shutil.rmtree(temp_store_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":
