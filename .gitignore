@@ -391,3 +391,4 @@ pyrightconfig.json
 
 # Project-specific ignores
 .chroma/
+.chroma-planner/
