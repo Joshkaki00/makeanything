@@ -13,6 +13,7 @@ pypdf
 # Dev / test
 pytest
 pytest-cov
+pytest-mock
 ruff
 pylint
 
