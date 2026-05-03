@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/block-main-push.sh",
+        "matcher": "git push",
+        "failClosed": true
+      },
+      {
+        "command": ".cursor/hooks/audit.sh"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": ".cursor/hooks/no-console-log.sh",
+        "matcher": "Write"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/audit.sh"
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": ".cursor/hooks/audit.sh"
+      }
+    ]
+  }
+}

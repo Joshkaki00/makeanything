@@ -1,0 +1,37 @@
+---
+description: Core agent workflow principles — always applied
+alwaysApply: true
+---
+
+# Agent Workflow
+
+## Test First
+Write the failing test before the implementation. Commit the test before the code that makes it pass. Agents make tests pass; you decide what to test.
+
+## One Agent, One Concern
+If a task touches multiple unrelated systems (frontend, backend, database, infra), split it across subagents. Each subagent stays focused and produces cleaner output.
+
+## Never Trust, Always Verify
+AI-generated code can look correct and be subtly wrong:
+- Hallucinated imports (library doesn't exist, or doesn't export what was called)
+- Deprecated or nonexistent API methods
+- Silent error swallowing in catch blocks
+- Wrong assumptions about async behavior
+
+Read every diff. Run the code. Watch it with real inputs.
+
+## External References
+If the agent uses a library or API you haven't seen before, verify:
+1. The package actually exists on npm / PyPI / crates.io
+2. The function/method it called is in that package's actual API
+3. The version matches what's installed
+
+Hallucinated imports are the most common AI coding failure.
+
+## Hard Rules (enforced by hooks, not just this rule)
+- No direct push to `main` or `master` — use a branch and PR
+- No `console.log` left in JS/TS production code
+- Run tests before committing
+
+## Linters Own Formatting
+Do not add formatting instructions here. Tabs vs spaces, semicolons, line length — those belong in `.eslintrc`, `ruff.toml`, or `pyproject.toml`.

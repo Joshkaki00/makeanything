@@ -1,0 +1,35 @@
+---
+description: Test boundary guidance — applied when writing or reviewing tests
+globs: "**/*.test.ts,**/*.test.js,**/*.spec.ts,**/*.spec.js,**/test_*.py,**/*_test.py"
+alwaysApply: false
+---
+
+# Test the Boundaries, Not the Middle
+
+Agents handle the happy path well. They miss the edges. When writing tests, always cover:
+
+## Required Edge Cases
+
+| Category | Examples |
+|----------|---------|
+| Empty / zero | `""`, `[]`, `{}`, `0`, `None` / `null` |
+| Boundary values | off-by-one, max int, empty string vs whitespace-only |
+| Large data | 10k items, deeply nested objects, long strings |
+| Concurrent access | two requests modifying the same record simultaneously |
+| Timezone / date | UTC vs local, DST transitions, leap years, Unix epoch 0 |
+| Auth boundaries | unauthenticated request, expired token, wrong role |
+| Network failures | timeout, 500 response, malformed JSON body |
+
+## Structure
+
+```
+describe("feature name") {
+  it("happy path")          // agent usually covers this
+  it("empty input")         // you must add this
+  it("invalid input")       // you must add this
+  it("boundary condition")  // you must add this
+}
+```
+
+## Red Before Green
+The test must fail before the implementation exists. If it passes immediately, the test is wrong or already covered elsewhere.

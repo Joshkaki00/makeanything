@@ -1,0 +1,30 @@
+---
+description: Verification checklist — run before merging code that touches external packages, APIs, or services
+alwaysApply: false
+---
+
+# Verification Checklist
+
+Run this before merging any code that is wired to an external API, package, or service.
+
+## Checklist
+
+- [ ] Tests pass (`pytest` / `npm test` / equivalent)
+- [ ] Linter passes — no new errors introduced
+- [ ] All imports resolve — no hallucinated packages or methods
+- [ ] API endpoints actually exist — verified against live docs or source
+- [ ] Behavior matches the spec — not just "code looks right"
+- [ ] Edge cases covered: empty input, null/None, large data, concurrent access, timezone differences
+- [ ] No secrets or API keys hardcoded — use env vars
+- [ ] `console.log` / debug prints removed from production paths
+
+## Gotcha Log
+
+Document every time the agent produces incorrect code. Add patterns here as they emerge.
+
+| Pattern | Description |
+|---------|-------------|
+| Hallucinated import | Agent used a function that doesn't exist in the installed version |
+| Silent catch | `except Exception: pass` or empty `catch {}` swallowing real errors |
+| Wrong HTTP method | Agent called POST where the API expects PUT, or vice versa |
+| Missing await | Async function called without `await`, returns Promise instead of value |
