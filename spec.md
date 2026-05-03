@@ -60,8 +60,11 @@ pytest tests/ -v
 # Run with coverage
 pytest tests/ -v --cov=src --cov-report=term-missing
 
-# Lint
+# Lint (style + imports)
 ruff check .
+
+# Lint (logic + errors)
+pylint src/
 
 # Type check (stretch goal)
 mypy src/

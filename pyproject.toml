@@ -17,6 +17,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "ruff",
+    "pylint",
 ]
 
 [tool.pytest.ini_options]
@@ -30,6 +31,27 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
 ignore = ["E501"]
+
+[tool.pylint.main]
+# Analyse only src/ — not tests or generated files
+source-roots = ["src"]
+
+[tool.pylint.messages_control]
+# Disable categories ruff already covers (style, imports, formatting)
+# so the two linters don't produce duplicate noise.
+disable = [
+    "C",        # convention — ruff handles these
+    "W0611",    # unused-import — ruff F401
+    "W0401",    # wildcard-import — ruff F403
+    "R0903",    # too-few-public-methods — noisy for dataclasses/stubs
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint.design]
+max-args = 8
+max-attributes = 10
 
 [build-system]
 requires = ["hatchling"]
