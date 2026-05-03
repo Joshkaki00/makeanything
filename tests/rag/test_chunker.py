@@ -4,7 +4,6 @@ Tests for src/rag/chunker.py
 All tests FAIL until chunk_markdown is implemented (stubs raise NotImplementedError).
 Run: pytest tests/rag/test_chunker.py -v
 """
-import pytest
 
 from src.rag.chunker import Chunk, chunk_markdown
 
