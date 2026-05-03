@@ -1,6 +1,12 @@
 {
   "version": 1,
   "hooks": {
+    "preToolUse": [
+      {
+        "command": ".cursor/hooks/enforce-venv.sh",
+        "matcher": "Shell"
+      }
+    ],
     "beforeShellExecution": [
       {
         "command": ".cursor/hooks/block-main-push.sh",

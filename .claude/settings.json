@@ -6,6 +6,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": ".claude/hooks/enforce-venv.sh"
+          },
+          {
+            "type": "command",
             "command": ".claude/hooks/block-main-push.sh"
           }
         ]

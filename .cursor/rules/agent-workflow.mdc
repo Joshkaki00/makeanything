@@ -28,10 +28,20 @@ If the agent uses a library or API you haven't seen before, verify:
 
 Hallucinated imports are the most common AI coding failure.
 
+## Python Environment
+Always use the project venv. Never call `python`, `pip`, `pytest`, `ruff`, or `pylint` without the venv prefix.
+```
+venv/bin/pytest tests/ -v
+venv/bin/ruff check .
+venv/bin/pylint src/
+venv/bin/pip install <pkg>
+```
+The `preToolUse` hook auto-rewrites bare calls in Cursor. You will not see the rewrite — it happens silently.
+
 ## Hard Rules (enforced by hooks, not just this rule)
 - No direct push to `main` or `master` — use a branch and PR
 - No `console.log` left in JS/TS production code
-- Run tests before committing
+- No bare `python`/`pip`/`pytest` — always `venv/bin/`
 
 ## Linters Own Formatting
 Do not add formatting instructions here. Tabs vs spaces, semicolons, line length — those belong in `.eslintrc`, `ruff.toml`, or `pyproject.toml`.

@@ -39,11 +39,19 @@ Add failures here when patterns emerge. Keep this current.
 - `/verify` — pre-merge verification checklist
 - `/review` — structured review focused on boundaries and edge cases
 
+## Environment
+**Always use the project venv.** Never use global `python`, `pip`, `pytest`, `ruff`, or `pylint`.
+```
+venv/bin/python    venv/bin/pip
+venv/bin/pytest    venv/bin/ruff    venv/bin/pylint
+```
+Venv: Python 3.13.3 at `venv/`. Hooks enforce this — bare tool calls are auto-corrected (Cursor) or blocked (Claude Code).
+
 ## Hard Rules
 These are enforced by hooks. They are listed here only so the agent knows not to attempt them:
 - No direct push to `main` or `master`
 - No `console.log` left in production JS/TS paths
-- Tests must pass before committing
+- No bare `python`/`pip`/`pytest` — always use `venv/bin/`
 
 ## Formatting
 Formatting rules live in the linter config, not here. Do not add style guidance to this file.

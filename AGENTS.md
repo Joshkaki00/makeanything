@@ -19,6 +19,18 @@ claude -w mcp-impl "implement src/mcp_server/tools.py to make tests/mcp_server/t
 ```
 Orchestrator reviews and merges. Never implement across modules in one agent pass.
 
+## Python Environment
+**Always use the project venv.** Never invoke global `python`, `pip`, `pytest`, `ruff`, `pylint`, or `mypy`.
+
+| Task | Command |
+|------|---------|
+| Run tests | `venv/bin/pytest tests/ -v` |
+| Lint | `venv/bin/ruff check . && venv/bin/pylint src/` |
+| Install a package | `venv/bin/pip install <pkg>` |
+| Run a script | `venv/bin/python src/...` |
+
+Hooks enforce this. Cursor silently rewrites bare calls. Claude Code blocks them with the correct command.
+
 ## Verification
 Run `/verify` before merging. Run `/review` when touching external packages or APIs.
 
