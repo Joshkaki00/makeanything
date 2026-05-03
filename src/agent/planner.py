@@ -15,10 +15,10 @@ import sys
 from enum import Enum
 from pathlib import Path
 
-from src.rag.chunker import chunk_markdown
-from src.rag.embedder import embed_texts
-from src.rag.retriever import retrieve
-from src.rag.store import VectorStore
+from src.rag.chunker import chunk_markdown  # pylint: disable=import-error
+from src.rag.embedder import embed_texts  # pylint: disable=import-error
+from src.rag.retriever import retrieve  # pylint: disable=import-error
+from src.rag.store import VectorStore  # pylint: disable=import-error
 
 
 class TaskType(str, Enum):
@@ -68,7 +68,7 @@ def classify_task(query: str) -> TaskType:
     return TaskType.RAG
 
 
-def run_agent(query: str) -> str:
+def run_agent(query: str) -> str:  # pylint: disable=redefined-outer-name
     """
     Execute the planning agent end-to-end: classify task, then run RAG or MCP.
 
@@ -86,11 +86,10 @@ def run_agent(query: str) -> str:
 
     if task_type == TaskType.RAG:
         return _run_rag_pipeline(query)
-    else:
-        return "MCP tasks not yet implemented"
+    return "MCP tasks not yet implemented"
 
 
-def _run_rag_pipeline(query: str) -> str:
+def _run_rag_pipeline(query: str) -> str:  # pylint: disable=redefined-outer-name
     """
     Execute RAG pipeline: load guides, chunk, embed, retrieve, format response.
 
