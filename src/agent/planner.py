@@ -10,11 +10,16 @@ if precision degrades on ambiguous inputs.
 
 See architecture.md for the full planning agent design.
 """
+import re
 import shutil
 import sys
 from enum import Enum
 from pathlib import Path
 
+from src.mcp_server.tools import (  # pylint: disable=import-error
+    create_dockerfile,
+    create_github_actions_workflow,
+)
 from src.rag.chunker import chunk_markdown  # pylint: disable=import-error
 from src.rag.embedder import embed_texts  # pylint: disable=import-error
 from src.rag.retriever import retrieve  # pylint: disable=import-error
@@ -32,7 +37,7 @@ MCP_TRIGGERS = frozenset({
 })
 
 
-def classify_task(query: str) -> TaskType:
+def classify_task(query: str) -> TaskType:  # pylint: disable=redefined-outer-name
     """
     Classify a user query as needing RAG retrieval or an MCP tool call.
 
@@ -86,7 +91,133 @@ def run_agent(query: str) -> str:  # pylint: disable=redefined-outer-name
 
     if task_type == TaskType.RAG:
         return _run_rag_pipeline(query)
-    return "MCP tasks not yet implemented"
+    return _run_mcp_pipeline(query)
+
+
+def _extract_dockerfile_params(query: str) -> tuple[str, int]:  # pylint: disable=redefined-outer-name
+    """
+    Extract Dockerfile parameters from user query.
+
+    Args:
+        query: User's natural language input.
+
+    Returns:
+        Tuple of (base_image, port). Uses defaults if not found in query.
+    """
+    # Default values
+    base_image = "python:3.11-slim"
+    port = 8000
+
+    normalized = query.lower()
+
+    # Extract base image (look for patterns like "python:3.11", "node:18", etc.)
+    # Match "word:digits" pattern
+    image_match = re.search(r"\b([a-z]+):(\d+(?:\.\d+)?(?:-\w+)?)\b", normalized)
+    if image_match:
+        base_image = f"{image_match.group(1)}:{image_match.group(2)}"
+
+    # Extract port number (look for "port XXXX" or just a 4-5 digit number)
+    port_match = re.search(r"port\s+(\d+)", normalized)
+    if port_match:
+        extracted_port = int(port_match.group(1))
+        # Validate port range
+        if 1 <= extracted_port <= 65535:
+            port = extracted_port
+
+    return base_image, port
+
+
+def _extract_workflow_params(query: str) -> tuple[str, str]:  # pylint: disable=redefined-outer-name
+    """
+    Extract GitHub Actions workflow parameters from user query.
+
+    Args:
+        query: User's natural language input.
+
+    Returns:
+        Tuple of (trigger, python_version). Uses defaults if not found in query.
+    """
+    # Default values
+    trigger = "push"
+    python_version = "3.11"
+
+    normalized = query.lower()
+
+    # Extract trigger type
+    if "pull_request" in normalized or "pull request" in normalized:
+        trigger = "pull_request"
+    elif "schedule" in normalized or "scheduled" in normalized:
+        trigger = "workflow_dispatch"  # Use workflow_dispatch for manual triggers
+    # Default "push" is already set
+
+    # Extract Python version (look for "python 3.X", "py 3.X", or just "3.X")
+    version_match = re.search(r"(?:python|py)\s*(\d+\.\d+)", normalized)
+    if version_match:
+        python_version = version_match.group(1)
+    else:
+        # Try to find standalone version like "3.12"
+        version_match = re.search(r"\b(\d+\.\d+)\b", normalized)
+        if version_match:
+            potential_version = version_match.group(1)
+            # Only accept if it looks like a Python version (3.x, 4.x)
+            if potential_version.startswith("3.") or potential_version.startswith("4."):
+                python_version = potential_version
+
+    return trigger, python_version
+
+
+def _detect_tool_type(query: str) -> str:  # pylint: disable=redefined-outer-name
+    """
+    Detect which MCP tool to use based on query keywords.
+
+    Args:
+        query: User's natural language input.
+
+    Returns:
+        Tool name: "dockerfile" or "github_actions"
+    """
+    normalized = query.lower()
+
+    # Dockerfile triggers
+    dockerfile_triggers = {"dockerfile", "docker", "containerize", "container"}
+    for trigger in dockerfile_triggers:
+        if trigger in normalized:
+            return "dockerfile"
+
+    # GitHub Actions triggers
+    github_triggers = {"github actions", "ci/cd", "workflow", "pipeline", "github"}
+    for trigger in github_triggers:
+        if trigger in normalized:
+            return "github_actions"
+
+    # Default to dockerfile if uncertain
+    return "dockerfile"
+
+
+def _run_mcp_pipeline(query: str) -> str:  # pylint: disable=redefined-outer-name
+    """
+    Execute MCP pipeline: detect tool, extract params, call tool, return formatted output.
+
+    Args:
+        query: User's natural language input.
+
+    Returns:
+        Formatted response with tool name and output.
+    """
+    try:
+        tool_type = _detect_tool_type(query)
+
+        if tool_type == "dockerfile":
+            base_image, port = _extract_dockerfile_params(query)
+            result = create_dockerfile(base_image=base_image, port=port)
+            return f"MCP Tool: create_dockerfile\n\n{result}"
+
+        # Default to GitHub Actions
+        trigger, python_version = _extract_workflow_params(query)
+        result = create_github_actions_workflow(trigger=trigger, python_version=python_version)
+        return f"MCP Tool: create_github_actions_workflow\n\n{result}"
+    except ValueError as e:
+        return f"Error executing MCP tool: {e}"
 
 
 def _run_rag_pipeline(query: str) -> str:  # pylint: disable=redefined-outer-name
