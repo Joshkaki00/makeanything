@@ -209,13 +209,13 @@ def _run_mcp_pipeline(query: str) -> str:  # pylint: disable=redefined-outer-nam
 
         if tool_type == "dockerfile":
             base_image, port = _extract_dockerfile_params(query)
-            result = create_dockerfile(base_image=base_image, port=port)
-            return f"MCP Tool: create_dockerfile\n\n{result}"
+            tool_output = create_dockerfile(base_image=base_image, port=port)
+            return f"MCP Tool: create_dockerfile\n\n{tool_output}"
 
         # Default to GitHub Actions
         trigger, python_version = _extract_workflow_params(query)
-        result = create_github_actions_workflow(trigger=trigger, python_version=python_version)
-        return f"MCP Tool: create_github_actions_workflow\n\n{result}"
+        tool_output = create_github_actions_workflow(trigger=trigger, python_version=python_version)
+        return f"MCP Tool: create_github_actions_workflow\n\n{tool_output}"
     except ValueError as e:
         return f"Error executing MCP tool: {e}"
 
