@@ -6,12 +6,16 @@ Living document. Update as the project evolves.
 
 ## What We Built
 
-### Scaffold (current state)
-- `src/rag/` — chunker, embedder, ChromaDB store, retriever. All stubs — interfaces defined, `NotImplementedError` raised until implemented.
-- `src/mcp_server/` — FastMCP server with `create_dockerfile`, `create_github_actions_workflow`, and `project://log` resource. Tools stubbed.
-- `src/agent/planner.py` — task classifier stub (`TaskType.RAG` vs `TaskType.MCP`).
-- `tests/` — failing tests written first. All fail with `NotImplementedError`. Implementation makes them green.
-- `data/guides/` — beginner Docker guide as the first RAG corpus document.
+### Implemented (current state)
+- `src/rag/chunker.py` — Splits markdown at `##` headings with `MarkdownHeaderTextSplitter`, then applies `RecursiveCharacterTextSplitter` at max_size within each section. Preserves source and heading metadata on every chunk.
+- `src/rag/embedder.py` — Uses `SentenceTransformer("nomic-ai/nomic-embed-text-v1.5")` to embed texts. Returns (n, 768) numpy array. Validates non-empty input.
+- `src/rag/store.py` — VectorStore wraps ChromaDB in-process with persistent disk storage (`.chroma-planner`). Deterministic IDs (`source::heading::index`). Query returns List[Chunk] ordered by cosine similarity.
+- `src/rag/retriever.py` — Embeds query, retrieves top_k from store, optional reranking stub (not yet implemented). Returns empty list on no matches.
+- `src/agent/planner.py` — Classifies queries (RAG vs MCP) by keyword matching. Runs full RAG pipeline (load guides, chunk, embed, store, retrieve, format with citations) or full MCP pipeline (detect tool, extract params, call tool, format output).
+- `src/mcp_server/` — FastMCP server registers `create_dockerfile(base_image, port, working_dir)` and `create_github_actions_workflow(trigger, python_version)` as tools, and `project://log` as a resource. Schema auto-generated from type annotations.
+- `tests/` — 71 unit tests covering all components. 9 integration tests marked separately for local verification. All pass.
+- `data/guides/` — 5 DevOps guides: docker-basics.md, github-actions-basics.md, ssh-basics.md, nginx-basics.md, aws-ec2-basics.md. ~60 total chunks.
+- `demo.py` — Executable end-to-end script: demo_rag(), demo_mcp(), demo_mcp_github_actions(), interactive mode, and single-query mode.
 - `CLAUDE.md`, `.claude/`, `.cursor/` — project memory, hooks, and scoped rules committed.
 
 ### Libraries chosen
