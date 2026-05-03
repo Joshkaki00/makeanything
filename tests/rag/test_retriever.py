@@ -3,6 +3,7 @@ Tests for src/rag/retriever.py
 
 All tests FAIL until retrieve is implemented.
 """
+import numpy as np
 import pytest
 
 from src.rag.retriever import retrieve
@@ -24,11 +25,13 @@ class TestRetrieval:
     def test_returns_list(self, mocker):
         mock_store = mocker.MagicMock()
         mock_store.query.return_value = []
+        mocker.patch("src.rag.retriever.embed_texts", return_value=np.zeros((1, 768)))
         result = retrieve("how do I use Docker", store=mock_store, rerank=False)
         assert isinstance(result, list)
 
     def test_empty_store_returns_empty_list(self, mocker):
         mock_store = mocker.MagicMock()
         mock_store.query.return_value = []
+        mocker.patch("src.rag.retriever.embed_texts", return_value=np.zeros((1, 768)))
         result = retrieve("how do I containerize my app", store=mock_store, rerank=False)
         assert result == []

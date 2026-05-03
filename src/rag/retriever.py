@@ -18,7 +18,7 @@ from .store import VectorStore
 DEFAULT_RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 
-def retrieve(
+def retrieve(  # pylint: disable=unused-argument
     query: str,
     store: VectorStore,
     top_k: int = 5,

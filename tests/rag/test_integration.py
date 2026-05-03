@@ -27,6 +27,8 @@ from src.rag.chunker import chunk_markdown
 from src.rag.embedder import embed_texts
 from src.rag.store import VectorStore
 
+pytestmark = pytest.mark.integration
+
 
 class TestEndToEndRAG:
     """End-to-end RAG pipeline tests."""
