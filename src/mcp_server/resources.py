@@ -18,7 +18,9 @@ def get_project_log() -> str:
     Returns the contents of data/project-log.md.
     Returns a default message if the log file doesn't exist yet.
     """
-    raise NotImplementedError
+    if PROJECT_LOG_PATH.exists():
+        return PROJECT_LOG_PATH.read_text(encoding="utf-8")
+    return "# Project Log\n\nNo tasks logged yet. Start by describing what you're building.\n"
 
 
 def append_to_project_log(entry: str) -> None:
@@ -31,4 +33,10 @@ def append_to_project_log(entry: str) -> None:
     Raises:
         ValueError: If entry is empty.
     """
-    raise NotImplementedError
+    if not entry or not entry.strip():
+        raise ValueError("entry must not be empty")
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    PROJECT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(PROJECT_LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(f"\n[{timestamp}] {entry}")
