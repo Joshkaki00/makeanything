@@ -38,3 +38,21 @@ venv/bin/pytest tests/
 | `poc-notes.md` | Implementation decisions, gotcha log, what worked and surprised us |
 | `demo.py` | Executable end-to-end demo: RAG, MCP, interactive, and single-query modes |
 | `CLAUDE.md` | Project workflows, hard rules, testing discipline |
+
+## Module Progress
+
+| Module | Score |
+|---|---|
+| Knowledge Check: MCP Fundamentals, Servers & Integrations | 100% |
+| Knowledge Check: Retrieval-Augmented Generation (RAG) | 100% |
+| End Course Knowledge Check: Building RAG and MCP Servers with Claude | 100% |
+
+![MCP Fundamentals knowledge check — 100%](images/Screenshot%202026-05-03%20at%2017-09-50%20Knowledge%20Check%20MCP%20Fundamentals%20Servers%20%26%20Integrations%20Coursera.png)
+
+![RAG knowledge check — 100%](images/Screenshot%202026-05-03%20at%2017-10-17%20Knowledge%20Check%20Retrieval-Augmented%20Generation%20(RAG)%20Coursera.png)
+
+![End course knowledge check — 100%](images/Screenshot%202026-05-03%20at%2013-44-29%20End%20Course%20Knowledge%20Check%20Building%20RAG%20and%20MCP%20Servers%20with%20Claude%20Coursera.png)
+
+## Certificate
+
+![Mastering Claude AI: Prompting, APIs, RAG, and MCP — Specialization Certificate](images/Coursera%20UI5PSGN7SRGJ.jpg)
