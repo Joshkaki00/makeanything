@@ -2,6 +2,8 @@
 
 Scoped to `src/rag/`. These instructions override root AGENTS.md for RAG work.
 
+**One agent, one concern.** Work in this module only. If a task also touches `src/mcp_server/` or `src/agent/`, stop and split it — use a separate subagent for each module.
+
 ## Chunking Rules
 - Always split at `##` headings first. Never merge content from two different headings into one chunk.
 - Use `MarkdownHeaderTextSplitter` for heading splits, `RecursiveCharacterTextSplitter` for secondary splits.
@@ -26,3 +28,12 @@ Scoped to `src/rag/`. These instructions override root AGENTS.md for RAG work.
 
 ## Test Pattern
 Each function has its own test file. Tests mock the model — do not load real weights in unit tests.
+
+**Test boundaries, not the middle.** Happy path is the minimum. Required edge cases:
+- `chunk_markdown("", source)` → returns `[]`, does not raise
+- `embed_texts([])` → raises `ValueError`
+- `embed_texts(["  "])` → raises `ValueError` (whitespace-only)
+- `store.query(embedding, top_k=0)` → raises `ValueError`
+- `retrieve("", store)` → raises `ValueError`
+
+**Never trust library behavior.** If `MarkdownHeaderTextSplitter` or `SentenceTransformer` is upgraded, re-verify output shapes. Use context7 MCP to check current API if behavior changes unexpectedly.

@@ -22,9 +22,13 @@ Beginner DevOps Learning Tracker — RAG pipeline over curated DevOps guides (Do
 
 **Test first.** Write the failing test before the implementation. Commit the test before the code that makes it pass.
 
-**One agent, one concern.** Split tasks that cross system boundaries (RAG vs MCP, frontend vs backend) into subagents. Each stays focused.
+**Test boundaries, not the middle.** Agents handle the happy path. They miss edge cases: empty inputs, null values, large data, concurrent access, timezone edge cases. Cover those explicitly.
 
-**Verify before trusting.** For every external package or API the agent uses, confirm: does the package exist? Does the method exist in that version? Check the live docs — do not accept the agent's description as proof.
+**One agent, one concern.** Split tasks that cross system boundaries (RAG vs MCP, frontend vs backend) into subagents. Each stays focused and produces cleaner output.
+
+**Never trust, always verify.** AI-generated code can look correct and be subtly wrong — hallucinated imports, deprecated methods, silent error swallowing. Read every diff. Run the code with real inputs.
+
+**Check external references.** If the agent uses a library you haven't seen, verify it exists and does what the agent claims. Use [context7] MCP to fetch live docs — do not accept the agent's description as proof.
 
 **Run `/verify` before merging** any code that touches an external package, API endpoint, or service.
 

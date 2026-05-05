@@ -6,6 +6,36 @@ Beginner DevOps Learning Tracker — RAG pipeline + MCP server. See `architectur
 ## Test First
 Write the failing test before the implementation. Commit the test. Then implement. Confirm red → green in commit history.
 
+## Test Boundaries, Not the Middle
+Agents handle the happy path well. They miss the edges. Every test suite must cover:
+- Empty inputs, null/None values, whitespace-only strings
+- Boundary values (off-by-one, max/min int, port 0, port 65536)
+- Large data (many chunks, long strings)
+- Invalid types and malformed inputs
+
+If your test passes immediately without implementation, the test is wrong or already covered elsewhere.
+
+## Run the Code
+Reading AI-generated code is not enough. Execute it. Watch what happens with real inputs. Many bugs only surface at runtime — wrong shapes, silent exception swallowing, unexpected None returns.
+
+## Never Trust, Always Verify
+AI-generated code can look correct and be subtly wrong:
+- Hallucinated imports (library doesn't exist or doesn't export what was called)
+- Deprecated or nonexistent API methods
+- Silent error swallowing in except blocks
+- Wrong assumptions about return shapes or types
+
+## Check External References
+If the agent uses a library or API you haven't seen, verify it before using it:
+1. Does the package exist on PyPI?
+2. Does the function/method exist in the installed version?
+3. Does it behave as described — or just as the agent claimed?
+
+Use the **context7 MCP** to fetch live documentation. Do not rely on the agent's description alone.
+
+## One Agent, One Concern
+If a task touches multiple unrelated systems (RAG pipeline, MCP server, planning agent), split it across subagents. Each one stays focused and produces cleaner output. Never implement across modules in a single agent pass.
+
 ## Complexity Tiers
 
 **Small** (single function or class, < 50 lines): Direct agent, no subagents.

@@ -15,18 +15,26 @@ If a task touches multiple unrelated systems (frontend, backend, database, infra
 AI-generated code can look correct and be subtly wrong:
 - Hallucinated imports (library doesn't exist, or doesn't export what was called)
 - Deprecated or nonexistent API methods
-- Silent error swallowing in catch blocks
-- Wrong assumptions about async behavior
+- Silent error swallowing in catch/except blocks
+- Wrong assumptions about async behavior or return shapes
 
-Read every diff. Run the code. Watch it with real inputs.
+Read every diff. Run the code. Watch it with real inputs. Many bugs only surface at runtime.
 
-## External References
-If the agent uses a library or API you haven't seen before, verify:
+## Test Boundaries, Not the Middle
+Agents handle the happy path. They miss the edges. Always add tests for:
+- Empty inputs, None/null, whitespace-only strings
+- Boundary values (off-by-one, max/min, port 0 or 65536)
+- Large data, malformed inputs, unexpected types
+
+If a test passes before the implementation exists, the test is wrong.
+
+## Check External References
+If the agent uses a library or API you haven't seen before, verify before using:
 1. The package actually exists on npm / PyPI / crates.io
 2. The function/method it called is in that package's actual API
 3. The version matches what's installed
 
-Hallucinated imports are the most common AI coding failure.
+Use **context7 MCP** to fetch live documentation. Hallucinated imports are the most common AI coding failure — do not accept the agent's description as proof.
 
 ## Python Environment
 Always use the project venv. Never call `python`, `pip`, `pytest`, `ruff`, or `pylint` without the venv prefix.

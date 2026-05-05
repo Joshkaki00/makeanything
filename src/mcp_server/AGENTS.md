@@ -2,6 +2,8 @@
 
 Scoped to `src/mcp_server/`. These instructions override root AGENTS.md for MCP work.
 
+**One agent, one concern.** Work in this module only. If a task also touches `src/rag/` or `src/agent/`, stop and split it — use a separate subagent for each module.
+
 ## Tool Design Rules
 - One tool, one concern. `create_dockerfile` generates Dockerfiles. Nothing else.
 - Pure functions in `tools.py`. No FastMCP import in `tools.py`. Tests import tools directly.
@@ -31,3 +33,11 @@ Vague descriptions produce wrong calls.
 
 ## Testing
 Import from `tools.py` and `resources.py` directly. Never instantiate `FastMCP` in tests.
+
+**Test boundaries, not the middle.** Required edge cases for every tool:
+- Empty string inputs → `ValueError` raised before any string construction
+- Port 0, port 65536, port -1 → `ValueError`
+- Unknown trigger values → `ValueError`
+- Extremely long `base_image` strings — should not crash, just pass through
+
+**Never trust the agent's description of FastMCP or `mcp[cli]`.** If the server fails to start or tools don't appear in the inspector, use context7 MCP to fetch the current FastMCP docs — do not guess at the registration API.
